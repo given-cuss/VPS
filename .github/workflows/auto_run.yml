@@ -3,15 +3,24 @@ on:
   schedule:
     - cron: '0 */6 * * *'
   workflow_dispatch:
+
 jobs:
-  run-iso-task:
+  run-vm:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           lfs: true
-      - name: Run ISO process
+
+      - name: Install QEMU
         run: |
-          chmod +x custom-slowdns.iso
-          ./custom-slowdns.iso
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+
+      - name: Run ISO in VM
+        run: |
+          # Lancement de l'ISO avec QEMU en mode texte
+          # -m 1024 : alloue 1 Go de RAM
+          # -nographic : désactive l'affichage graphique requis par GitHub Actions
+          qemu-system-x86_64 -m 1024 -cdrom custom-slowdns.iso -nographic
