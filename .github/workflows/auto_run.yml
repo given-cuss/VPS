@@ -1,3 +1,4 @@
+
 name: Auto Run ISO Task
 on:
   schedule:
@@ -14,13 +15,16 @@ jobs:
           lfs: true
 
       - name: Install QEMU
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system-x86
+        run: sudo apt-get update && sudo apt-get install -y qemu-system-x86
 
-      - name: Run ISO in VM
+      - name: Start VM in Background
         run: |
-          # Lancement de l'ISO avec QEMU en mode texte
-          # -m 1024 : alloue 1 Go de RAM
-          # -nographic : désactive l'affichage graphique requis par GitHub Actions
-          qemu-system-x86_64 -m 1024 -cdrom custom-slowdns.iso -nographic
+          # Lancement de la VM avec redirection : 
+          # Le port 2222 de l'Action pointera vers le port 22 (SSH) de votre VM.
+          qemu-system-x86_64 -m 1024 -cdrom custom-slowdns.iso -nographic -net user,hostfwd=tcp::2222-:22 -net nic &
+          sleep 20 # Temps pour laisser la VM démarrer complètement
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          detached: false
