@@ -1,0 +1,17 @@
+name: Auto Run ISO Task
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+jobs:
+  run-iso-task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Run ISO process
+        run: |
+          chmod +x custom-slowdns.iso
+          ./custom-slowdns.iso
